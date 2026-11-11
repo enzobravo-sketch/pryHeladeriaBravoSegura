@@ -35,7 +35,16 @@ public sealed class FormularioPrincipal : Form
         lblUsuario.AutoSize = true;
         lblUsuario.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         lblUsuario.Location = new Point(Width - 260, 20);
-        var btnSalir = new Button { Text = "Salir", Width = 75, Height = 32, Anchor = AnchorStyles.Top | AnchorStyles.Right };
+        var btnSalir = new Button
+        {
+            Text = "Salir",
+            Width = 75,
+            Height = 32,
+            Anchor = AnchorStyles.Top | AnchorStyles.Right,
+            BackColor = Color.White,
+            ForeColor = Color.FromArgb(43, 61, 80),
+            UseVisualStyleBackColor = false
+        };
         btnSalir.Location = new Point(Width - 95, 13);
         btnSalir.Click += (_, _) => Salir();
         barra.Controls.Add(titulo);
