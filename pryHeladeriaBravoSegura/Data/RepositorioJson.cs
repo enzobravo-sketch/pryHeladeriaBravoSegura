@@ -14,6 +14,10 @@ public sealed class RepositorioJson
     {
         Configuracion = configuracion ?? new ConfiguracionPersistencia();
         Datos = CargarDatos();
+        if (AsegurarAdministradorInicial())
+        {
+            GuardarDatos(Datos);
+        }
     }
 
     public void Guardar()
@@ -168,6 +172,23 @@ public sealed class RepositorioJson
         datos.Pedidos ??= [];
         datos.DetallesPedido ??= [];
         return datos;
+    }
+
+    private bool AsegurarAdministradorInicial()
+    {
+        if (Datos.Usuarios.Any(usuario => usuario.EsAdministrador))
+        {
+            return false;
+        }
+
+        Datos.Usuarios.Add(new Usuario
+        {
+            IdUsuario = ObtenerProximoId(Datos.Usuarios, usuario => usuario.IdUsuario),
+            Nombre = "admin",
+            Contrasena = SemillaDatos.CrearHash("Admin123"),
+            EsAdministrador = true
+        });
+        return true;
     }
 
     private static bool EsErrorDeLectura(Exception excepcion)

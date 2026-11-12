@@ -77,6 +77,12 @@ public sealed class FormularioPrincipal : Form
         var btnPedidoNuevo = new Button { Text = "Generar pedido nuevo", AutoSize = true, Height = 36 };
         var btnEntrada = new Button { Text = "Registrar entrada", AutoSize = true, Height = 36 };
         inferior.Controls.AddRange([btnNuevo, btnEntrada, btnPedidos, btnMovimientos, btnPedidoNuevo]);
+        if (servicios.Auth.EsAdministrador)
+        {
+            var btnUsuarios = new Button { Text = "Administrar usuarios", AutoSize = true, Height = 36 };
+            inferior.Controls.Add(btnUsuarios);
+            btnUsuarios.Click += (_, _) => new FormularioUsuarios(servicios).ShowDialog(this);
+        }
 
         Controls.Add(grilla);
         Controls.Add(inferior);

@@ -10,6 +10,7 @@ public sealed class ServiciosAplicacion
     public StockService Stock { get; }
     public PedidoService Pedidos { get; }
     public MovimientoService Movimientos { get; }
+    public UsuarioService Usuarios { get; }
 
     public ServiciosAplicacion()
     {
@@ -19,5 +20,6 @@ public sealed class ServiciosAplicacion
         Stock = new StockService(Repositorio);
         Pedidos = new PedidoService(Repositorio);
         Movimientos = new MovimientoService(Repositorio);
+        Usuarios = new UsuarioService(Repositorio);
     }
 }

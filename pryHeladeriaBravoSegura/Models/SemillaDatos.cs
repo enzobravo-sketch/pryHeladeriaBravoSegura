@@ -22,6 +22,13 @@ public static class SemillaDatos
                 new Usuario
                 {
                     IdUsuario = 1,
+                    Nombre = "admin",
+                    Contrasena = CrearHash("Admin123"),
+                    EsAdministrador = true
+                },
+                new Usuario
+                {
+                    IdUsuario = 2,
                     Nombre = "Juan",
                     Contrasena = CrearHash("Juan123")
                 }

@@ -30,6 +30,7 @@ public sealed class MovimientoService
                 usuario => usuario.IdUsuario,
                 (elemento, usuario) => new MovimientoResumen
                 {
+                    IdMovimiento = elemento.Remito.IdRemito,
                     IdProducto = elemento.Remito.IdProducto,
                     Fecha = elemento.Remito.Fecha,
                     DescripcionProducto = elemento.Producto.Descripcion,
@@ -50,6 +51,7 @@ public sealed class MovimientoService
                 usuario => usuario.IdUsuario,
                 (elemento, usuario) => new MovimientoResumen
                 {
+                    IdMovimiento = elemento.Salida.IdSalida,
                     IdProducto = elemento.Salida.IdProducto,
                     Fecha = elemento.Salida.Fecha,
                     DescripcionProducto = elemento.Producto.Descripcion,
@@ -65,6 +67,30 @@ public sealed class MovimientoService
             .Where(movimiento => !tipo.HasValue || movimiento.Tipo == tipo.Value)
             .OrderByDescending(movimiento => movimiento.Fecha)
             .ToList();
+    }
+
+    public void RevertirSalida(int idSalida, int idUsuarioAdministrador)
+    {
+        ValidarAdministrador(idUsuarioAdministrador);
+
+        repositorio.EjecutarTransaccion(datos =>
+        {
+            Salida salida = datos.Salidas.FirstOrDefault(elemento => elemento.IdSalida == idSalida)
+                ?? throw new ReglaNegocioException("La salida seleccionada ya no existe.");
+            Stock stock = datos.Stocks.FirstOrDefault(elemento => elemento.IdStock == salida.IdStock)
+                ?? throw new ReglaNegocioException("La salida no tiene un registro de stock válido.");
+
+            stock.Cantidad += salida.Cantidad;
+            datos.Salidas.Remove(salida);
+        });
+    }
+
+    private void ValidarAdministrador(int idUsuario)
+    {
+        if (!repositorio.Datos.Usuarios.Any(usuario => usuario.IdUsuario == idUsuario && usuario.EsAdministrador))
+        {
+            throw new ReglaNegocioException("Solo un administrador puede deshacer salidas.");
+        }
     }
 
     private static bool EstaDentroDelRango(DateTime fecha, DateTime? desde, DateTime? hasta)

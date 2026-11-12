@@ -11,6 +11,8 @@ public sealed class AuthService
 
     public Usuario? UsuarioActual { get; private set; }
 
+    public bool EsAdministrador => UsuarioActual?.EsAdministrador == true;
+
     public AuthService(RepositorioJson repositorio)
     {
         this.repositorio = repositorio;

@@ -37,6 +37,7 @@ public sealed class DetallePedidoPropuesto
 
 public sealed class MovimientoResumen
 {
+    public int IdMovimiento { get; init; }
     public int IdProducto { get; init; }
     public DateTime Fecha { get; init; }
     public string DescripcionProducto { get; init; } = string.Empty;

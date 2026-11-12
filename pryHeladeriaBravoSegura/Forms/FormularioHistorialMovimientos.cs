@@ -60,6 +60,11 @@ public sealed class FormularioHistorialMovimientos : Form
         grilla.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "TIPO", DataPropertyName = "Tipo" });
         grilla.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "CANTIDAD", DataPropertyName = "Cantidad" });
         grilla.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "USUARIO", DataPropertyName = "NombreUsuario" });
+        if (servicios.Auth.EsAdministrador)
+        {
+            grilla.Columns.Add(new DataGridViewButtonColumn { Name = "Deshacer", HeaderText = "ACCIÓN", Text = "Deshacer", UseColumnTextForButtonValue = true, Width = 100 });
+            grilla.CellContentClick += (_, evento) => Deshacer(evento);
+        }
     }
 
     private void CargarFiltros()
@@ -91,16 +96,34 @@ public sealed class FormularioHistorialMovimientos : Form
                 dtpHasta.Checked ? dtpHasta.Value.Date : null,
                 idProducto,
                 tipo)
-            .Select(movimiento => new
-            {
-                Fecha = movimiento.Fecha.ToString("dd/MM/yyyy HH:mm"),
-                movimiento.DescripcionProducto,
-                Tipo = movimiento.Tipo.ToString(),
-                movimiento.Cantidad,
-                movimiento.NombreUsuario
-            })
             .ToList();
         grilla.DataSource = filas;
+    }
+
+    private void Deshacer(DataGridViewCellEventArgs evento)
+    {
+        if (evento.RowIndex < 0 || evento.ColumnIndex < 0 ||
+            grilla.Columns[evento.ColumnIndex].Name != "Deshacer" ||
+            grilla.Rows[evento.RowIndex].DataBoundItem is not MovimientoResumen movimiento ||
+            movimiento.Tipo != TipoMovimiento.Salida)
+        {
+            return;
+        }
+
+        if (MessageBox.Show(this, $"¿Deshacer la salida de {movimiento.Cantidad} unidad(es) de {movimiento.DescripcionProducto}?", "Confirmar reversión", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+        {
+            return;
+        }
+
+        try
+        {
+            servicios.Movimientos.RevertirSalida(movimiento.IdMovimiento, servicios.Auth.UsuarioActual!.IdUsuario);
+            Actualizar();
+        }
+        catch (ReglaNegocioException excepcion)
+        {
+            MessageBox.Show(this, excepcion.Message, "No se pudo deshacer la salida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
     }
 
     private static DateTimePicker CrearFecha()
